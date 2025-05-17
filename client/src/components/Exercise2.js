@@ -1,182 +1,130 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getExercice2 } from '../utils/contracts';
-import web3 from '../utils/web3';
 import BlockchainInfo from './BlockchainInfo';
+import web3 from '../utils/web3';
 
-const Exercise2 = () => {
+const Exercice2 = () => {
   const [contract, setContract] = useState(null);
-  const [etherValue, setEtherValue] = useState('');
-  const [weiValue, setWeiValue] = useState('');
-  const [etherToWeiResult, setEtherToWeiResult] = useState('');
-  const [weiToEtherResult, setWeiToEtherResult] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  
+  const [montantEther, setMontantEther] = useState('');
+  const [montantWei, setMontantWei] = useState('');
+  const [resultatWei, setResultatWei] = useState('');
+  const [resultatEther, setResultatEther] = useState('');
+  const [chargement, setChargement] = useState(false);
+  const [erreur, setErreur] = useState('');
+
   useEffect(() => {
-    const initContract = async () => {
+    const initialiserContrat = async () => {
       try {
-        const contractInstance = await getExercice2();
-        setContract(contractInstance);
+        const instanceContrat = await getExercice2();
+        setContract(instanceContrat);
       } catch (err) {
-        console.error("Error initializing contract:", err);
-        setError("Failed to load contract. Please check if Ganache is running and contracts are deployed.");
+        setErreur("Échec du chargement du contrat");
       }
     };
-
-    initContract();
+    initialiserContrat();
   }, []);
 
-  const handleEtherToWei = async () => {
-    if (!contract) return;
-    
-    try {
-      setLoading(true);
-      setError('');
-      
-      if (!etherValue || isNaN(parseFloat(etherValue))) {
-        setError("Please enter a valid Ether amount");
-        setLoading(false);
-        return;
-      }
-      
-      const result = await contract.methods.etherToWei(etherValue).call();
-      setEtherToWeiResult(result);
-      setLoading(false);
-    } catch (err) {
-      console.error("Error calling etherToWei:", err);
-      setError("Error converting Ether to Wei");
-      setLoading(false);
-    }
-  };
-
-  const handleWeiToEther = async () => {
-    if (!contract) return;
-    
-    try {
-      setLoading(true);
-      setError('');
-      
-      if (!weiValue || isNaN(parseFloat(weiValue))) {
-        setError("Please enter a valid Wei amount");
-        setLoading(false);
-        return;
-      }
-      
-      const result = await contract.methods.weiToEther(weiValue).call();
-      setWeiToEtherResult(result);
-      setLoading(false);
-    } catch (err) {
-      console.error("Error calling weiToEther:", err);
-      setError("Error converting Wei to Ether");
-      setLoading(false);
-    }
-  };
-
-  // Web3 utility functions for demonstration
-  const directConvertEtherToWei = () => {
-    if (!etherValue || isNaN(parseFloat(etherValue))) {
-      setError("Please enter a valid Ether amount");
+  const convertirEnWei = async () => {
+    if (!contract || !montantEther || isNaN(montantEther)) {
+      setErreur("Veuillez entrer un montant valide");
       return;
     }
     
     try {
-      const result = web3.utils.toWei(etherValue, 'ether');
-      setEtherToWeiResult(result);
+      setChargement(true);
+      setErreur('');
+      const weiAmount = await contract.methods.etherEnWei(montantEther.toString()).call();
+      setResultatWei(weiAmount);
     } catch (err) {
-      console.error("Error with Web3 conversion:", err);
-      setError("Error with Web3 conversion");
+      setErreur("Erreur de conversion Ether → Wei");
     }
+    setChargement(false);
   };
 
-  const directConvertWeiToEther = () => {
-    if (!weiValue || isNaN(parseFloat(weiValue))) {
-      setError("Please enter a valid Wei amount");
+  const convertirEnEther = async () => {
+    if (!montantWei || isNaN(montantWei)) {
+      setErreur("Veuillez entrer un montant valide");
       return;
     }
     
     try {
-      const result = web3.utils.fromWei(weiValue, 'ether');
-      setWeiToEtherResult(result);
+      setChargement(true);
+      setErreur('');
+      
+      // Use web3.utils.fromWei instead of the contract function to get full precision
+      const resultatPrecis = web3.utils.fromWei(montantWei.toString(), 'ether');
+      setResultatEther(resultatPrecis);
     } catch (err) {
-      console.error("Error with Web3 conversion:", err);
-      setError("Error with Web3 conversion");
+      setErreur("Format Wei invalide");
     }
+    setChargement(false);
   };
 
   return (
     <div className="container">
-      <h1>Exercise 2: Ether/Wei Conversion</h1>
+      <h1>Exercice 2 : Conversion de Devises</h1>
       
       <BlockchainInfo />
       
-      {error && <div className="card" style={{ color: 'red' }}>{error}</div>}
+      {erreur && <div className="card" style={{ color: 'red' }}>{erreur}</div>}
       
       {contract ? (
         <>
           <div className="card">
-            <h3>Convert Ether to Wei (1 Ether = 10^18 Wei)</h3>
+            <h3>Convertir Ether en Wei</h3>
             <div className="form-group">
-              <label>Ether Amount:</label>
+              <label>Montant en Ether :</label>
               <input
                 type="number"
-                value={etherValue}
-                onChange={(e) => setEtherValue(e.target.value)}
-                placeholder="Enter Ether amount"
+                step="0.000000000000000001"
+                value={montantEther}
+                onChange={(e) => setMontantEther(e.target.value)}
+                placeholder="Ex: 1.5"
               />
             </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button onClick={handleEtherToWei} disabled={loading}>
-                {loading ? 'Converting...' : 'Convert (Smart Contract)'}
-              </button>
-              <button onClick={directConvertEtherToWei}>
-                Convert (Web3)
-              </button>
-            </div>
-            {etherToWeiResult && (
-              <div className="result">
-                <p>Result (Wei): {etherToWeiResult}</p>
+            <button onClick={convertirEnWei} disabled={chargement}>
+              {chargement ? 'Conversion...' : 'Convertir en Wei'}
+            </button>
+            {resultatWei && (
+              <div className="resultat">
+                <p>{montantEther} Ether = {resultatWei} Wei</p>
               </div>
             )}
           </div>
-          
+
           <div className="card">
-            <h3>Convert Wei to Ether</h3>
+            <h3>Convertir Wei en Ether</h3>
             <div className="form-group">
-              <label>Wei Amount:</label>
+              <label>Montant en Wei :</label>
               <input
                 type="number"
-                value={weiValue}
-                onChange={(e) => setWeiValue(e.target.value)}
-                placeholder="Enter Wei amount"
+                value={montantWei}
+                onChange={(e) => setMontantWei(e.target.value)}
+                placeholder="Ex: 1500000000000000000"
               />
             </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button onClick={handleWeiToEther} disabled={loading}>
-                {loading ? 'Converting...' : 'Convert (Smart Contract)'}
-              </button>
-              <button onClick={directConvertWeiToEther}>
-                Convert (Web3)
-              </button>
-            </div>
-            {weiToEtherResult && (
-              <div className="result">
-                <p>Result (Ether): {weiToEtherResult}</p>
+            <button onClick={convertirEnEther} disabled={chargement}>
+              {chargement ? 'Conversion...' : 'Convertir en Ether'}
+            </button>
+            {resultatEther && (
+              <div className="resultat">
+                <p>{montantWei} Wei = {resultatEther} Ether</p>
               </div>
             )}
           </div>
         </>
       ) : (
         <div className="card">
-          <p>Loading contract...</p>
+          <p>Chargement du contrat...</p>
         </div>
       )}
       
       <Link to="/" className="nav-item" style={{ display: 'inline-block', marginTop: '20px' }}>
-        Back to Home
+        Retour à l'accueil
       </Link>
     </div>
   );
 };
 
-export default Exercise2; 
+export default Exercice2;

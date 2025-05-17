@@ -2,30 +2,38 @@
 pragma solidity ^0.8.0;
 
 contract Exercice6 {
-    uint[] public numbers;
-    
-    constructor() {
-        numbers = [1, 2, 3]; // Default initialization
-    }
-    
-    function addNumber(uint _number) public {
-        numbers.push(_number);
-    }
-    
-    function getNumber(uint _index) public view returns (uint) {
-        require(_index < numbers.length, "Index out of bounds");
-        return numbers[_index];
-    }
-    
-    function getAllNumbers() public view returns (uint[] memory) {
-        return numbers;
-    }
-    
-    function calculateSum() public view returns (uint) {
-        uint sum = 0;
-        for(uint i = 0; i < numbers.length; i++) {
-            sum += numbers[i];
+    uint[] private nombres;
+
+    constructor(uint[] memory _valeurInitiales) {
+        // If no values are provided, use defaults
+        if (_valeurInitiales.length == 0) {
+        nombres = [10, 20, 30]; 
+        } else {
+            // Copy provided values to nombres array
+            for(uint i = 0; i < _valeurInitiales.length; i++) {
+                nombres.push(_valeurInitiales[i]);
+            }
         }
-        return sum;
     }
-} 
+    
+    function ajouterNombre(uint _nombre) public {
+        nombres.push(_nombre);
+    }
+
+    function getElement(uint index) public view returns (uint) {
+        require(index < nombres.length, "Indice hors limites");
+        return nombres[index];
+    }
+
+    function afficheTableau() public view returns (uint[] memory) {
+        return nombres;
+    }
+
+    function calculerSomme() public view returns (uint) {
+        uint somme = 0;
+        for(uint i = 0; i < nombres.length; i++) {
+            somme += nombres[i];
+        }
+        return somme;
+    }
+}

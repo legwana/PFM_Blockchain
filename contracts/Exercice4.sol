@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 contract Exercice4 {
-    function isPositive(int _number) public pure returns (bool) {
-        return _number > 0;
+    function estPositif(int256 _nombre) public pure returns (bool) {
+        return _nombre > 0;
     }
-} 
+}

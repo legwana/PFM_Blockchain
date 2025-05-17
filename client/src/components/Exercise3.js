@@ -4,231 +4,231 @@ import { getExercice3 } from '../utils/contracts';
 import web3 from '../utils/web3';
 import BlockchainInfo from './BlockchainInfo';
 
-const Exercise3 = () => {
+const Exercice3 = () => {
   const [contract, setContract] = useState(null);
-  const [currentMessage, setCurrentMessage] = useState('');
-  const [newMessage, setNewMessage] = useState('');
-  const [string1, setString1] = useState('');
-  const [string2, setString2] = useState('');
-  const [comparisonResult, setComparisonResult] = useState('');
-  const [lengthResult, setLengthResult] = useState('');
-  const [concatResult, setConcatResult] = useState('');
+  const [messageActuel, setMessageActuel] = useState('');
+  const [nouveauMessage, setNouveauMessage] = useState('');
+  const [chaine1, setChaine1] = useState('');
+  const [chaine2, setChaine2] = useState('');
+  const [resultatConcat, setResultatConcat] = useState('');
+  const [resultatComparaison, setResultatComparaison] = useState('');
+  const [longueurChaine, setLongueurChaine] = useState('');
   const [transactionHash, setTransactionHash] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  
+  const [chargement, setChargement] = useState(false);
+  const [erreur, setErreur] = useState('');
+  const [operationEnCours, setOperationEnCours] = useState('');
+
   useEffect(() => {
-    const initContract = async () => {
+    const initialiserContrat = async () => {
       try {
-        const contractInstance = await getExercice3();
-        setContract(contractInstance);
-        
-        if (contractInstance) {
-          const message = await contractInstance.methods.message().call();
-          setCurrentMessage(message);
-        }
+        const instanceContrat = await getExercice3();
+        setContract(instanceContrat);
+        const message = await instanceContrat.methods.getMessage().call();
+        setMessageActuel(message);
       } catch (err) {
-        console.error("Error initializing contract:", err);
-        setError("Failed to load contract. Please check if Ganache is running and contracts are deployed.");
+        console.error("Erreur d'initialisation:", err);
+        setErreur("Échec du chargement du contrat");
       }
     };
-
-    initContract();
+    initialiserContrat();
   }, []);
 
-  const handleSetMessage = async () => {
-    if (!contract || !newMessage) return;
+  const definirMessage = async () => {
+    if (!contract || !nouveauMessage.trim()) {
+      setErreur("Veuillez entrer un message valide");
+      return;
+    }
     
     try {
-      setLoading(true);
-      setError('');
-      
-      const accounts = await web3.eth.getAccounts();
-      const transaction = await contract.methods.setMessage(newMessage).send({
-        from: accounts[0]
+      setChargement(true);
+      setErreur('');
+      const comptes = await web3.eth.getAccounts();
+      const transaction = await contract.methods.setMessage(nouveauMessage).send({
+        from: comptes[0]
       });
-      
       setTransactionHash(transaction.transactionHash);
-      setCurrentMessage(newMessage);
-      setNewMessage('');
-      setLoading(false);
+      setMessageActuel(nouveauMessage);
+      setNouveauMessage('');
     } catch (err) {
-      console.error("Error setting message:", err);
-      setError("Error setting message");
-      setLoading(false);
+      setErreur("Erreur lors de la mise à jour du message");
+    } finally {
+      setChargement(false);
     }
   };
 
-  const handleConcatenate = async () => {
-    if (!contract) return;
+  const gererConcatener = async () => {
+    if (!chaine1.trim() || !chaine2.trim()) {
+      setErreur("Les deux chaînes sont requises");
+      return;
+    }
     
     try {
-      setLoading(true);
-      setError('');
-      
-      if (!string1 || !string2) {
-        setError("Both strings are required for concatenation");
-        setLoading(false);
-        return;
-      }
-      
-      const result = await contract.methods.concatenate(string1, string2).call();
-      setConcatResult(result);
-      setLoading(false);
+      setOperationEnCours('concat');
+      setErreur('');
+      const resultat = await contract.methods.concatener(chaine1, chaine2).call();
+      setResultatConcat(resultat);
     } catch (err) {
-      console.error("Error concatenating strings:", err);
-      setError("Error concatenating strings");
-      setLoading(false);
+      console.error("Erreur de concaténation:", err);
+      setErreur("Erreur de concaténation: " + err.message);
+    } finally {
+      setOperationEnCours('');
     }
   };
 
-  const handleCompare = async () => {
-    if (!contract) return;
-    
+  const gererComparaison = async () => {
+    if (!chaine1.trim() || !chaine2.trim()) {
+      setErreur("Les deux chaînes sont requises");
+      return;
+    }
+
     try {
-      setLoading(true);
-      setError('');
-      
-      if (!string1 || !string2) {
-        setError("Both strings are required for comparison");
-        setLoading(false);
-        return;
-      }
-      
-      const result = await contract.methods.compare(string1, string2).call();
-      setComparisonResult(result ? "Strings are equal" : "Strings are not equal");
-      setLoading(false);
+      setOperationEnCours('compare');
+      setErreur('');
+      const identiques = await contract.methods.comparer(chaine1, chaine2).call();
+      setResultatComparaison(identiques ? "Chaînes identiques" : "Chaînes différentes");
     } catch (err) {
-      console.error("Error comparing strings:", err);
-      setError("Error comparing strings");
-      setLoading(false);
+      console.error("Erreur de comparaison:", err);
+      setErreur("Erreur de comparaison: " + err.message);
+    } finally {
+      setOperationEnCours('');
     }
   };
 
-  const handleGetLength = async () => {
-    if (!contract) return;
-    
+  const calculerLongueur = async () => {
+    if (!chaine1.trim()) {
+      setErreur("Une chaîne est requise");
+      return;
+    }
+
     try {
-      setLoading(true);
-      setError('');
-      
-      if (!string1) {
-        setError("First string is required to get length");
-        setLoading(false);
-        return;
-      }
-      
-      const result = await contract.methods.getLength(string1).call();
-      setLengthResult(result);
-      setLoading(false);
+      setOperationEnCours('length');
+      setErreur('');
+      const longueur = await contract.methods.longueur(chaine1).call();
+      setLongueurChaine(longueur.toString());
     } catch (err) {
-      console.error("Error getting string length:", err);
-      setError("Error getting string length");
-      setLoading(false);
+      console.error("Erreur de calcul de longueur:", err);
+      setErreur("Erreur de calcul de longueur: " + err.message);
+    } finally {
+      setOperationEnCours('');
     }
   };
 
   return (
     <div className="container">
-      <h1>Exercise 3: String Manipulation</h1>
+      <h1>Exercice 3 : Gestion des Chaînes de Caractères</h1>
       
       <BlockchainInfo />
       
-      {error && <div className="card" style={{ color: 'red' }}>{error}</div>}
+      {erreur && <div className="card" style={{ color: 'red' }}>{erreur}</div>}
       
       {contract ? (
         <>
           <div className="card">
-            <h3>Current Message</h3>
-            <p>{currentMessage || "<No message set>"}</p>
+            <h3>Message Actuel</h3>
+            <div>
+              {messageActuel || "<Aucun message>"}
+            </div>
             
-            <h3>Set New Message (Transaction)</h3>
+            <h3>Définir Nouveau Message</h3>
             <div className="form-group">
-              <label>New Message:</label>
               <input
                 type="text"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Enter a new message"
+                className="form-control"
+                value={nouveauMessage}
+                onChange={(e) => setNouveauMessage(e.target.value)}
+                placeholder="Entrez un nouveau message"
               />
             </div>
-            <button onClick={handleSetMessage} disabled={loading}>
-              {loading ? 'Setting...' : 'Set Message'}
+            <button 
+              className="btn btn-primary"
+              onClick={definirMessage} 
+              disabled={chargement}
+            >
+              {chargement ? 'En cours...' : 'Définir le message'}
             </button>
             
             {transactionHash && (
-              <div className="result">
-                <p>Transaction Hash: {transactionHash}</p>
+              <div className="transaction-info">
+                <small>Transaction: {transactionHash}</small>
               </div>
             )}
           </div>
-          
+
           <div className="card">
-            <h3>String Operations</h3>
+            <h3>Opérations sur Chaînes</h3>
             <div className="form-group">
-              <label>First String:</label>
+              <label>Première chaîne</label>
               <input
                 type="text"
-                value={string1}
-                onChange={(e) => setString1(e.target.value)}
-                placeholder="Enter first string"
+                className="form-control"
+                value={chaine1}
+                onChange={(e) => setChaine1(e.target.value)}
+                placeholder="Entrez la première chaîne"
               />
             </div>
             <div className="form-group">
-              <label>Second String:</label>
+              <label>Deuxième chaîne</label>
               <input
                 type="text"
-                value={string2}
-                onChange={(e) => setString2(e.target.value)}
-                placeholder="Enter second string"
+                className="form-control"
+                value={chaine2}
+                onChange={(e) => setChaine2(e.target.value)}
+                placeholder="Entrez la deuxième chaîne"
               />
             </div>
             
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
-              <button onClick={handleConcatenate} disabled={loading}>
-                Concatenate
-              </button>
-              <button onClick={handleCompare} disabled={loading}>
-                Compare
-              </button>
-              <button onClick={handleGetLength} disabled={loading}>
-                Get Length (First String)
-              </button>
-            </div>
-            
-            {concatResult && (
-              <div className="result">
-                <h4>Concatenation Result:</h4>
-                <p>{concatResult}</p>
+            <button 
+              className="btn btn-primary"
+              onClick={gererConcatener}
+              disabled={operationEnCours === 'concat'}
+              style={{ marginRight: '5px' }}
+            >
+              {operationEnCours === 'concat' ? 'Concaténation...' : 'Concaténer'}
+            </button>
+            <button 
+              className="btn btn-primary"
+              onClick={gererComparaison}
+              disabled={operationEnCours === 'compare'}
+              style={{ marginRight: '5px' }}
+            >
+              {operationEnCours === 'compare' ? 'Comparaison...' : 'Comparer'}
+            </button>
+            <button 
+              className="btn btn-primary"
+              onClick={calculerLongueur}
+              disabled={operationEnCours === 'length'}
+            >
+              {operationEnCours === 'length' ? 'Calcul...' : 'Calculer la longueur'}
+            </button>
+
+            {resultatConcat && (
+              <div className="resultat">
+                <p>Résultat de la concaténation: {resultatConcat}</p>
               </div>
             )}
-            
-            {comparisonResult && (
-              <div className="result">
-                <h4>Comparison Result:</h4>
-                <p>{comparisonResult}</p>
+            {resultatComparaison && (
+              <div className="resultat">
+                <p>Résultat de la comparaison: {resultatComparaison}</p>
               </div>
             )}
-            
-            {lengthResult && (
-              <div className="result">
-                <h4>Length of First String:</h4>
-                <p>{lengthResult} characters</p>
+            {longueurChaine && (
+              <div className="resultat">
+                <p>Longueur de la chaîne: {longueurChaine} caractères</p>
               </div>
             )}
           </div>
         </>
       ) : (
         <div className="card">
-          <p>Loading contract...</p>
+          <p>Chargement du contrat...</p>
         </div>
       )}
       
       <Link to="/" className="nav-item" style={{ display: 'inline-block', marginTop: '20px' }}>
-        Back to Home
+        Retour à l'accueil
       </Link>
     </div>
   );
 };
 
-export default Exercise3; 
+export default Exercice3;

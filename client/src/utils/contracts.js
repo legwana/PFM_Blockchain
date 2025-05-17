@@ -8,21 +8,58 @@ import Exercice4Artifact from '../contracts/Exercice4.json';
 import Exercice5Artifact from '../contracts/Exercice5.json';
 import Exercice6Artifact from '../contracts/Exercice6.json';
 import RectangleArtifact from '../contracts/Rectangle.json';
-import Exercice8Artifact from '../contracts/Exercice8.json';
+import PaymentArtifact from '../contracts/Payment.json';
 
 // Function to create a contract instance
 const getContractInstance = async (contractArtifact) => {
   try {
     // Get the network ID
     const networkId = await web3.eth.net.getId();
+    console.log(`Current network ID: ${networkId}`);
+    
+    // Check if there's a custom address for exercise 7 or 8
+    const contractName = contractArtifact.contractName;
+    let customAddress = null;
+    if (contractName === 'Rectangle') {
+      customAddress = localStorage.getItem('exercice7Address');
+    } else if (contractName === 'Payment') {
+      customAddress = localStorage.getItem('exercice8Address');
+    }
+    
+    // Use custom address if available
+    if (customAddress) {
+      console.log(`Using custom address for ${contractName}: ${customAddress}`);
+      const instance = new web3.eth.Contract(
+        contractArtifact.abi,
+        customAddress
+      );
+      return instance;
+    }
     
     // Get the deployed contract address for this network
     const deployedNetwork = contractArtifact.networks[networkId];
     
+    // Log more info for debugging
+    if (contractArtifact.contractName === 'Exercice6' || 
+        contractArtifact.contractName === 'Rectangle' || 
+        contractArtifact.contractName === 'Payment') {
+      console.log(`${contractArtifact.contractName} contract initialization:`);
+      console.log('- Network ID:', networkId);
+      console.log('- Contract artifact:', contractArtifact.contractName);
+      console.log('- Networks available:', Object.keys(contractArtifact.networks));
+      console.log('- Deployed network exists:', !!deployedNetwork);
+      if (deployedNetwork) {
+        console.log('- Contract address:', deployedNetwork.address);
+      }
+    }
+    
     if (!deployedNetwork || !deployedNetwork.address) {
-      console.error(`Contract not deployed on network ${networkId}`);
+      console.error(`Contract ${contractArtifact.contractName} not deployed on network ${networkId}`);
+      console.error('Available networks:', Object.keys(contractArtifact.networks));
       return createMockContract(contractArtifact.contractName);
     }
+    
+    console.log(`Contract ${contractArtifact.contractName} found at ${deployedNetwork.address}`);
     
     // Create a new contract instance
     const instance = new web3.eth.Contract(
@@ -32,19 +69,22 @@ const getContractInstance = async (contractArtifact) => {
     
     return instance;
   } catch (error) {
-    console.error(`Error creating contract instance:`, error);
+    console.error(`Error creating contract instance for ${contractArtifact.contractName}:`, error);
     return createMockContract(contractArtifact.contractName);
   }
 };
 
-// Create a mock contract as fallback
+// Create mock contract for fallback
 const createMockContract = (contractName) => {
-  console.warn(`Using mock implementation for ${contractName}`);
+  console.log(`Creating mock contract for ${contractName}`);
+  const mockMethods = createMockMethods(contractName);
+  
   return {
-    methods: createMockMethods(contractName),
     options: {
       address: '0x0000000000000000000000000000000000000000'
-    }
+    },
+    methods: mockMethods,
+    _isMock: true
   };
 };
 
@@ -60,8 +100,8 @@ const createMockMethods = (contractName) => {
     },
     // Exercise 2
     'Exercice2': {
-      etherToWei: (amount) => ({ call: async () => web3.utils.toWei(amount, 'ether') }),
-      weiToEther: (amount) => ({ call: async () => web3.utils.fromWei(amount, 'ether') })
+      etherEnWei: (amount) => ({ call: async () => web3.utils.toWei(amount, 'ether') }),
+      weiEnEther: (amount) => ({ call: async () => web3.utils.fromWei(amount, 'ether') })
     },
     // Exercise 3
     'Exercice3': {
@@ -70,46 +110,56 @@ const createMockMethods = (contractName) => {
         call: async () => {},
         send: async () => ({ transactionHash: '0x123456789...' }) 
       }),
-      concatenate: (a, b) => ({ call: async () => a + b }),
-      getLength: (str) => ({ call: async () => str.length.toString() }),
-      compare: (a, b) => ({ call: async () => a === b })
+      concatener: (a, b) => ({ call: async () => a + b }),
+      longueur: (str) => ({ call: async () => str.length.toString() }),
+      comparer: (a, b) => ({ call: async () => a === b })
     },
     // Exercise 4
     'Exercice4': {
-      isPositive: (num) => ({ call: async () => parseInt(num) > 0 })
+      estPositif: (num) => ({ call: async () => parseInt(num) > 0 })
     },
     // Exercise 5
     'Exercice5': {
-      isEven: (num) => ({ call: async () => parseInt(num) % 2 === 0 })
+      estPair: (num) => ({ call: async () => parseInt(num) % 2 === 0 })
     },
     // Exercise 6
     'Exercice6': {
-      getAllNumbers: () => ({ call: async () => ['1', '2', '3'] }),
-      addNumber: (num) => ({ 
+      afficheTableau: () => ({ call: async () => ['10', '20', '30'] }),
+      ajouterNombre: (num) => ({ 
         call: async () => {},
         send: async () => ({ transactionHash: '0x123456789...' }) 
       }),
-      calculateSum: () => ({ call: async () => '6' })
+      calculerSomme: () => ({ call: async () => '60' }),
+      getElement: (index) => ({ call: async () => index < 3 ? ['10', '20', '30'][index] : '0' })
     },
     // Exercise 7
     'Rectangle': {
       x: () => ({ call: async () => '0' }),
       y: () => ({ call: async () => '0' }),
-      length: () => ({ call: async () => '10' }),
-      width: () => ({ call: async () => '5' }),
-      area: () => ({ call: async () => '50' })
+      longueur: () => ({ call: async () => '10' }),
+      largeur: () => ({ call: async () => '5' }),
+      length: () => ({ call: async () => '10' }),  // En anglais aussi
+      width: () => ({ call: async () => '5' }),    // En anglais aussi
+      surface: () => ({ call: async () => '50' }),
+      area: () => ({ call: async () => '50' }),    // En anglais aussi
+      afficheInfos: () => ({ call: async () => 'Je suis un Rectangle' }),
+      afficheXY: () => ({ call: async () => ['0', '0'] }),
+      afficheDimensions: () => ({ call: async () => ['10', '5'] }),
+      deplacerForme: (dx, dy) => ({ 
+        call: async () => {},
+        send: async () => ({ transactionHash: '0x123456789...' }) 
+      })
     },
     // Exercise 8
-    'Exercice8': {
+    'Payment': {
       recipient: () => ({ call: async () => '0x0000000000000000000000000000000000000000' }),
-      getBalance: () => ({ call: async () => '0' }),
+      receivePayment: () => ({ 
+        call: async () => {},
+        send: async (options) => ({ transactionHash: '0x123456789...' }) 
+      }),
       withdraw: () => ({ 
         call: async () => {},
-        send: async () => ({ transactionHash: '0x123456789...' }) 
-      }),
-      withdrawAmount: (amount) => ({ 
-        call: async () => {},
-        send: async () => ({ transactionHash: '0x123456789...' }) 
+        send: async () => ({ transactionHash: '0x987654321...' }) 
       })
     }
   };
@@ -125,4 +175,4 @@ export const getExercice4 = () => getContractInstance(Exercice4Artifact);
 export const getExercice5 = () => getContractInstance(Exercice5Artifact);
 export const getExercice6 = () => getContractInstance(Exercice6Artifact);
 export const getExercice7 = () => getContractInstance(RectangleArtifact);
-export const getExercice8 = () => getContractInstance(Exercice8Artifact); 
+export const getExercice8 = () => getContractInstance(PaymentArtifact); 

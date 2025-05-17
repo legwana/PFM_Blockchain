@@ -3,93 +3,89 @@ import { Link } from 'react-router-dom';
 import { getExercice4 } from '../utils/contracts';
 import BlockchainInfo from './BlockchainInfo';
 
-const Exercise4 = () => {
+const Exercice4 = () => {
   const [contract, setContract] = useState(null);
-  const [number, setNumber] = useState('');
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  
+  const [nombre, setNombre] = useState('');
+  const [resultat, setResultat] = useState(null);
+  const [chargement, setChargement] = useState(false);
+  const [erreur, setErreur] = useState('');
+
   useEffect(() => {
-    const initContract = async () => {
+    const initialiserContrat = async () => {
       try {
-        const contractInstance = await getExercice4();
-        setContract(contractInstance);
+        const instanceContrat = await getExercice4();
+        setContract(instanceContrat);
       } catch (err) {
-        console.error("Error initializing contract:", err);
-        setError("Failed to load contract. Please check if Ganache is running and contracts are deployed.");
+        console.error("Erreur d'initialisation:", err);
+        setErreur("Échec du chargement du contrat");
       }
     };
-
-    initContract();
+    initialiserContrat();
   }, []);
 
-  const handleCheckPositive = async () => {
+  const verifierPositivite = async () => {
     if (!contract) return;
     
     try {
-      setLoading(true);
-      setError('');
+      setChargement(true);
+      setErreur('');
       
-      if (number === '' || isNaN(parseInt(number))) {
-        setError("Please enter a valid number");
-        setLoading(false);
+      if (nombre === '' || isNaN(parseInt(nombre))) {
+        setErreur("Veuillez entrer un nombre entier valide");
+        setChargement(false);
         return;
       }
       
-      const result = await contract.methods.isPositive(number).call();
-      setResult(result);
-      setLoading(false);
+      const estPositif = await contract.methods.estPositif(parseInt(nombre)).call();
+      setResultat(estPositif);
     } catch (err) {
-      console.error("Error checking if number is positive:", err);
-      setError("Error checking if number is positive");
-      setLoading(false);
+      console.error("Erreur de vérification:", err);
+      setErreur("Erreur lors de la vérification");
     }
+    setChargement(false);
   };
 
   return (
     <div className="container">
-      <h1>Exercise 4: Positive Number Check</h1>
+      <h1>Exercice 4 : Vérification de Positivité</h1>
       
       <BlockchainInfo />
       
-      {error && <div className="card" style={{ color: 'red' }}>{error}</div>}
+      {erreur && <div className="card erreur">{erreur}</div>}
       
       {contract ? (
         <div className="card">
-          <h3>Check if a Number is Positive</h3>
+          <h3>Vérificateur de Nombre Positif</h3>
           <div className="form-group">
-            <label>Enter a Number:</label>
+            <label>Entrez un nombre entier :</label>
             <input
               type="number"
-              value={number}
-              onChange={(e) => setNumber(e.target.value)}
-              placeholder="Enter an integer"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              placeholder="Ex: -5, 0, 10"
             />
           </div>
-          <button onClick={handleCheckPositive} disabled={loading}>
-            {loading ? 'Checking...' : 'Check if Positive'}
+          <button onClick={verifierPositivite} disabled={chargement}>
+            {chargement ? 'Vérification...' : 'Vérifier la Positivité'}
           </button>
           
-          {result !== null && (
-            <div className="result">
-              <p>
-                The number {number} is {result ? 'positive' : 'not positive (zero or negative)'}.
-              </p>
+          {resultat !== null && (
+            <div className="resultat">
+              <p>Le nombre {nombre} est {resultat ? 'positif ✅' : 'non positif ❌'}</p>
             </div>
           )}
         </div>
       ) : (
         <div className="card">
-          <p>Loading contract...</p>
+          <p>Chargement du contrat...</p>
         </div>
       )}
       
       <Link to="/" className="nav-item" style={{ display: 'inline-block', marginTop: '20px' }}>
-        Back to Home
+        Retour à l'accueil
       </Link>
     </div>
   );
 };
 
-export default Exercise4; 
+export default Exercice4;

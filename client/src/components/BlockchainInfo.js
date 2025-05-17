@@ -40,7 +40,7 @@ const BlockchainInfo = () => {
           });
         }
       } catch (error) {
-        console.error("Error loading blockchain data:", error);
+        console.error("Erreur lors du chargement des données blockchain:", error);
       }
     };
 
@@ -56,11 +56,11 @@ const BlockchainInfo = () => {
 
   return (
     <div className="card">
-      <h3>Blockchain Info</h3>
-      <p><strong>Latest Block:</strong> {blockNumber}</p>
-      <p><strong>Connected Account:</strong> {account || 'Not connected'}</p>
-      <p><strong>Balance:</strong> {balance} ETH</p>
-      <p><strong>Network ID:</strong> {networkId}</p>
+      <h3>Informations Blockchain</h3>
+      <p><strong>Bloc Actuel:</strong> {blockNumber}</p>
+      <p><strong>Compte Connecté:</strong> {account || 'Non connecté'}</p>
+      <p><strong>Solde:</strong> {balance} ETH</p>
+      <p><strong>ID Réseau:</strong> {networkId}</p>
     </div>
   );
 };

@@ -19,7 +19,6 @@ const Exercise1 = () => {
         const contractInstance = await getExercice1();
         setContract(contractInstance);
         
-        // Get initial state values
         if (contractInstance) {
           const a = await contractInstance.methods.a().call();
           const b = await contractInstance.methods.b().call();
@@ -57,11 +56,9 @@ const Exercise1 = () => {
       setLoading(true);
       setError('');
       
-      // Convert string inputs to numbers
       const x = parseInt(inputValues.x);
       const y = parseInt(inputValues.y);
       
-      // Check if inputs are valid numbers
       if (isNaN(x) || isNaN(y)) {
         setError("Please enter valid numbers");
         setLoading(false);
@@ -85,7 +82,7 @@ const Exercise1 = () => {
 
   return (
     <div className="container">
-      <h1>Exercise 1: Addition Functions</h1>
+      <h1>Exercice 1 : Fonctions d'Addition</h1>
       
       <BlockchainInfo />
       
@@ -94,71 +91,64 @@ const Exercise1 = () => {
       {contract ? (
         <>
           <div className="card">
-            <h2>State Variables</h2>
+            <h2>Variables d'État</h2>
             <p>a = {stateValues.a}</p>
             <p>b = {stateValues.b}</p>
             
-            <h3>Function 1: Add State Variables (a + b)</h3>
+            <h3>Fonction 1 : Addition des Variables d'État (a + b)</h3>
             <button onClick={handleAddition1} disabled={loading}>
-              {loading ? 'Loading...' : 'Calculate a + b'}
+              {loading ? 'Chargement...' : 'Calculer a + b'}
             </button>
             {result1 && (
               <div className="result">
-                <p>Result: {result1}</p>
+                <p>Résultat : {result1}</p>
               </div>
             )}
           </div>
           
           <div className="card">
-            <h3>Function 2: Add Two Parameters</h3>
+            <h3>Fonction 2 : Addition de Deux Paramètres</h3>
             <div className="form-group">
-              <label>First Number (x):</label>
+              <label>Premier Nombre (x) :</label>
               <input
                 type="number"
                 name="x"
                 value={inputValues.x}
                 onChange={handleInputChange}
-                placeholder="Enter first number"
+                placeholder="Entrez le premier nombre"
               />
             </div>
             <div className="form-group">
-              <label>Second Number (y):</label>
+              <label>Deuxième Nombre (y) :</label>
               <input
                 type="number"
                 name="y"
                 value={inputValues.y}
                 onChange={handleInputChange}
-                placeholder="Enter second number"
+                placeholder="Entrez le deuxième nombre"
               />
             </div>
             <button onClick={handleAddition2} disabled={loading}>
-              {loading ? 'Loading...' : 'Calculate x + y'}
+              {loading ? 'Chargement...' : 'Calculer x + y'}
             </button>
             {result2 && (
               <div className="result">
-                <p>Result: {result2}</p>
+                <p>Résultat : {result2}</p>
               </div>
             )}
           </div>
-          
-          {transactionHash && (
-            <div className="card">
-              <h3>Transaction Information</h3>
-              <p>Transaction Hash: {transactionHash}</p>
-            </div>
-          )}
         </>
       ) : (
         <div className="card">
-          <p>Loading contract...</p>
+          <p>Chargement du contrat...</p>
         </div>
       )}
       
       <Link to="/" className="nav-item" style={{ display: 'inline-block', marginTop: '20px' }}>
-        Back to Home
+        Retour à l'accueil
       </Link>
     </div>
   );
 };
 
-export default Exercise1; 
+export default Exercise1;

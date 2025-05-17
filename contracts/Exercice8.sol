@@ -1,33 +1,28 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract Exercice8 {
+contract Payment {
     address public recipient;
     
     constructor(address _recipient) {
         recipient = _recipient;
     }
-    
-    // Function to allow receiving ether
-    receive() external payable {
-        // No logic needed, just receive the Ether
+
+    function receivePayment() public payable {
+        require(msg.value > 0, "Montant invalide");
     }
-    
-    // Function to get the contract balance
-    function getBalance() public view returns (uint) {
-        return address(this).balance;
-    }
-    
-    // Function to withdraw the contract balance
+
     function withdraw() public {
-        require(msg.sender == recipient, "Only the recipient can withdraw");
+        require(msg.sender == recipient, "Non autorise");
         payable(recipient).transfer(address(this).balance);
     }
     
-    // Function to withdraw a specific amount
-    function withdrawAmount(uint _amount) public {
-        require(msg.sender == recipient, "Only the recipient can withdraw");
-        require(_amount <= address(this).balance, "Insufficient balance");
-        payable(recipient).transfer(_amount);
+    // New function to send funds to a specific address
+    function sendTo(address payable _destination) public {
+        require(msg.sender == recipient, "Non autorise");
+        require(_destination != address(0), "Adresse de destination invalide");
+        require(address(this).balance > 0, "Pas de fonds a envoyer");
+        
+        _destination.transfer(address(this).balance);
     }
-} 
+}

@@ -3,100 +3,96 @@ import { Link } from 'react-router-dom';
 import { getExercice5 } from '../utils/contracts';
 import BlockchainInfo from './BlockchainInfo';
 
-const Exercise5 = () => {
+const Exercice5 = () => {
   const [contract, setContract] = useState(null);
-  const [number, setNumber] = useState('');
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  
+  const [nombre, setNombre] = useState('');
+  const [resultat, setResultat] = useState(null);
+  const [chargement, setChargement] = useState(false);
+  const [erreur, setErreur] = useState('');
+
   useEffect(() => {
-    const initContract = async () => {
+    const initialiserContrat = async () => {
       try {
-        const contractInstance = await getExercice5();
-        setContract(contractInstance);
+        const instanceContrat = await getExercice5();
+        setContract(instanceContrat);
       } catch (err) {
-        console.error("Error initializing contract:", err);
-        setError("Failed to load contract. Please check if Ganache is running and contracts are deployed.");
+        console.error("Erreur d'initialisation:", err);
+        setErreur("Échec du chargement du contrat");
       }
     };
-
-    initContract();
+    initialiserContrat();
   }, []);
 
-  const handleCheckEven = async () => {
+  const verifierParite = async () => {
     if (!contract) return;
     
     try {
-      setLoading(true);
-      setError('');
+      setChargement(true);
+      setErreur('');
       
-      if (number === '' || isNaN(parseInt(number))) {
-        setError("Please enter a valid number");
-        setLoading(false);
+      if (nombre === '' || isNaN(parseInt(nombre))) {
+        setErreur("Veuillez entrer un nombre valide");
         return;
       }
       
-      if (parseInt(number) < 0) {
-        setError("Please enter a non-negative number (unsigned integer)");
-        setLoading(false);
+      const nombreEntier = parseInt(nombre);
+      if (nombreEntier < 0) {
+        setErreur("Le nombre doit être non négatif");
         return;
       }
       
-      const result = await contract.methods.isEven(number).call();
-      setResult(result);
-      setLoading(false);
+      const estPair = await contract.methods.estPair(nombreEntier).call();
+      setResultat(estPair);
     } catch (err) {
-      console.error("Error checking if number is even:", err);
-      setError("Error checking if number is even");
-      setLoading(false);
+      setErreur("Erreur lors de la vérification");
+    } finally {
+      setChargement(false);
     }
   };
 
   return (
     <div className="container">
-      <h1>Exercise 5: Even Number Check</h1>
+      <h1>Exercice 5 : Vérification de Parité</h1>
       
       <BlockchainInfo />
       
-      {error && <div className="card" style={{ color: 'red' }}>{error}</div>}
+      {erreur && <div className="card erreur">{erreur}</div>}
       
       {contract ? (
         <div className="card">
-          <h3>Check if a Number is Even</h3>
+          <h3>Vérificateur de Nombre Pair</h3>
           <div className="form-group">
-            <label>Enter a Number:</label>
+            <label>Entrez un nombre entier non négatif :</label>
             <input
               type="number"
               min="0"
-              value={number}
-              onChange={(e) => setNumber(e.target.value)}
-              placeholder="Enter a non-negative integer"
+              step="1"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              placeholder="Ex: 0, 4, 7"
             />
           </div>
-          <button onClick={handleCheckEven} disabled={loading}>
-            {loading ? 'Checking...' : 'Check if Even'}
+          <button onClick={verifierParite} disabled={chargement}>
+            {chargement ? 'Vérification...' : 'Vérifier la Parité'}
           </button>
           
-          {result !== null && (
-            <div className="result">
-              <p>
-                The number {number} is {result ? 'even' : 'odd'}.
-              </p>
+          {resultat !== null && (
+            <div className="resultat">
+              <p>Le nombre {nombre} est {resultat ? 'pair' : 'impair'}</p>
             </div>
           )}
         </div>
       ) : (
         <div className="card">
-          <p>Loading contract...</p>
+          <p>Chargement du contrat...</p>
         </div>
       )}
       
       <Link to="/" className="nav-item" style={{ display: 'inline-block', marginTop: '20px' }}>
-        Back to Home
+        Retour à l'accueil
       </Link>
     </div>
   );
 };
 
-export default Exercise5; 
+export default Exercice5;

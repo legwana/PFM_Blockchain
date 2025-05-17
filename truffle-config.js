@@ -45,6 +45,7 @@
 // const { MNEMONIC, PROJECT_ID } = process.env;
 
 // const HDWalletProvider = require('@truffle/hdwallet-provider');
+const path = require("path");
 
 module.exports = {
   /**
@@ -57,6 +58,9 @@ module.exports = {
    * $ truffle test --network <network-name>
    */
 
+  // Specify where contract artifacts should be stored
+  contracts_build_directory: path.join(__dirname, "client/src/contracts"),
+
   networks: {
     // Useful for testing. The `development` name is special - truffle uses it by default
     // if it's defined here and no other network is specified at the command line.
@@ -65,8 +69,8 @@ module.exports = {
     // options below to some value.
     development: {
       host: "127.0.0.1",     // Localhost (default: none)
-      port: 7545,            // Standard Ganache port
-      network_id: "*",       // Any network (default: none)
+      port: 7545,            // Standard Ganache CLI port
+      network_id: 1337,      // Ganache's default network ID
     },
     //
     // An additional network, but with some advanced options…

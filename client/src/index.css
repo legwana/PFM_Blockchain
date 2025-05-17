@@ -100,3 +100,42 @@ button:hover {
 .nav-list li {
   margin: 10px ;
 }
+
+.blockchain-info {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.blockchain-info .card-body {
+  padding: 1rem;
+}
+
+.blockchain-info h3 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: #212529;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.info-grid div {
+  padding: 0.5rem;
+  background-color: #fff;
+  border-radius: 0.25rem;
+  border: 1px solid #dee2e6;
+}
+
+.info-grid strong {
+  color: #495057;
+  margin-right: 0.5rem;
+}
+
+.form-control {
+  margin-bottom: 15px;
+}

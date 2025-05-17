@@ -68,20 +68,6 @@ The project implements the following Solidity contracts:
 
 7. Open the application in your browser at `http://localhost:3000`
 
-## Project Structure
-
-- `contracts/`: Contains all Solidity contracts
-- `migrations/`: Contains Truffle migration scripts
-- `client/`: Contains the React frontend
-  - `src/components/`: React components for each exercise
-  - `src/utils/`: Utility functions for Web3 and contract integration
-
-## Using the Application
-
-1. Connect to the application with MetaMask or use the default Ganache accounts
-2. Navigate through the exercises using the home page
-3. Each exercise page allows interaction with the corresponding smart contract
-4. Blockchain information is displayed on each page, including current account and network status
 
 ## License
 
