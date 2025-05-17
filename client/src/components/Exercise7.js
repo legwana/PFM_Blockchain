@@ -108,7 +108,7 @@ abstract contract Shape {
         y = _y;
     }
     
-    function area() public virtual pure returns (uint);
+    function area() public virtual view returns (uint);
 }
 
 contract Rectangle is Shape {
@@ -120,7 +120,7 @@ contract Rectangle is Shape {
         width = _width;
     }
     
-    function area() public override pure returns (uint) {
+    function area() public override view returns (uint) {
         return length * width;
     }
 }

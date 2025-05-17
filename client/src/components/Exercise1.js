@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getExercice1 } from '../utils/contracts';
-import web3 from '../utils/web3';
 import BlockchainInfo from './BlockchainInfo';
 
 const Exercise1 = () => {
